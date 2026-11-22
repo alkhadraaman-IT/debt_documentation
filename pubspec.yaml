@@ -51,7 +51,7 @@ dependencies:
   connectivity_plus: ^6.0.0
 
   # Utilities & UI
-  intl: ^0.19.0 # لتنسيق التواريخ والأرقام
+  intl: ^0.20.3 # لتنسيق التواريخ والأرقام
   flutter_screenutil: ^5.9.0 # للـ Responsiveness
   uuid: ^4.4.0 # لتوليد deviceId
   shared_preferences: ^2.2.0
