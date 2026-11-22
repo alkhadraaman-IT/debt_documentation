@@ -1,30 +1,44 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:debt_documentation/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 
-import 'package:debt_documentation/main.dart';
+import 'features/auth/auth_bloc_test.dart' show testAuthBloc, unverified;
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('session without a user opens the Arabic sign-in page', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(
+        createAuthBloc: () => testAuthBloc(Stream.value(const Right(null))),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.widgetWithText(ElevatedButton, 'تسجيل الدخول'), findsOneWidget);
+    expect(find.text('كلمة المرور'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('unverified users must confirm their email before proceeding', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(
+        createAuthBloc: () =>
+            testAuthBloc(Stream.value(const Right(unverified))),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('تأكيد البريد الإلكتروني'), findsOneWidget);
+    expect(find.text('دفتر الديون والشراكات'), findsNothing);
+    await tester.tap(find.text('تحققت من بريدي'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('دفتر الديون والشراكات'), findsOneWidget);
+    await tester.tap(find.text('تسجيل الخروج'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(ElevatedButton, 'تسجيل الدخول'), findsOneWidget);
   });
 }
